@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "athena-infra"
+version = "1.0.0"
+dynamic = ["optional-dependencies"]
+
+[tool.setuptools.dynamic]
+optional-dependencies.dev = { file = ["requirements-dev.txt"] }

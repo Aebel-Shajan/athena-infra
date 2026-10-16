@@ -1,0 +1,23 @@
+# Python
+.venv
+
+# Provider plugins and module cache, re-downloaded by init
+.terraform/
+
+# State: can contain secrets and is environment-specific
+*.tfstate
+*.tfstate.*
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Variable files often hold secrets or personal values
+*.tfvars
+*.tfvars.json
+
+# Local overrides
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
