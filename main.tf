@@ -114,11 +114,11 @@ resource "aws_glue_catalog_table" "noaa_ghcn_daily" {
     # Partition projection instead of msck repair table: msck skips non-lowercase keys (YEAR=, ELEMENT=),
     # while the location template maps onto the uppercase NOAA layout as-is.
     # element is "injected" as there are many values, so queries must filter on element (= or IN).
-    "projection.enabled"        = "true"
-    "projection.year.type"      = "integer"
-    "projection.year.range"     = "1750,2100"
-    "projection.element.type"   = "injected"
-    "storage.location.template" = "s3://${aws_s3_bucket.datalake.bucket}/bronze/noaa_ghcn_daily/YEAR=$${year}/ELEMENT=$${element}/"
+    # "projection.enabled"        = "true"
+    # "projection.year.type"      = "integer"
+    # "projection.year.range"     = "1750,2100"
+    # "projection.element.type"   = "injected"
+    # "storage.location.template" = "s3://${aws_s3_bucket.datalake.bucket}/bronze/noaa_ghcn_daily/YEAR=$${year}/ELEMENT=$${element}/"
   }
 
   storage_descriptor {
@@ -176,4 +176,85 @@ resource "aws_glue_catalog_table" "noaa_ghcn_daily" {
     name = "ELEMENT"
     type = "string"
   }
+}
+
+# Create crawler as:
+# * msck repair table doesn't pick up partitions where folder keys are upper case
+# * injected partitions don't allow you to see what partitions are available
+resource "aws_iam_role" "ghcn_crawler" {
+  name = "glue-crawler-noaa-ghcn-daily"
+
+  # Lets the Glue service assume this role
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowGlueToAssumeCrawlerRole"
+        Effect = "Allow"
+        Action = "sts:AssumeRole"
+        Principal = {
+          Service = "glue.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = {
+    project = "aebel-datalake"
+  }
+}
+
+# Glue catalog + CloudWatch logs permissions for the crawler
+resource "aws_iam_role_policy_attachment" "ghcn_crawler_glue" {
+  role       = aws_iam_role.ghcn_crawler.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+}
+
+# What the crawler is allowed to read in S3
+resource "aws_iam_role_policy" "ghcn_crawler_s3" {
+  name = "read-bronze-noaa-ghcn-daily"
+  role = aws_iam_role.ghcn_crawler.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid      = "List"
+        Effect   = "Allow"
+        Action   = "s3:ListBucket"
+        Resource = aws_s3_bucket.datalake.arn
+      },
+      {
+        Sid      = "ReadBronzeGhcnObjects"
+        Effect   = "Allow"
+        Action   = "s3:GetObject"
+        Resource = "${aws_s3_bucket.datalake.arn}/bronze/noaa_ghcn_daily/*"
+      }
+    ]
+  })
+}
+
+
+resource "aws_glue_crawler" "noaa_ghcn_daily" {
+  database_name = aws_glue_catalog_database.bronze.name
+  name          = "noaa_ghcn_daily"
+  role          = aws_iam_role.ghcn_crawler.arn
+
+  catalog_target {
+    database_name = aws_glue_catalog_database.bronze.name
+    tables        = [aws_glue_catalog_table.noaa_ghcn_daily.name]
+  }
+
+  # Required for catalog targets; also stops the crawler rewriting your Terraform-defined schema
+  schema_change_policy {
+    update_behavior = "LOG"
+    delete_behavior = "LOG"
+  }
+
+  configuration = jsonencode({
+    Version = 1.0
+    CrawlerOutput = {
+      Partitions = { AddOrUpdateBehavior = "InheritFromTable" }
+    }
+  })
 }
