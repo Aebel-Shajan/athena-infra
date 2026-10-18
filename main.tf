@@ -258,3 +258,30 @@ resource "aws_glue_crawler" "noaa_ghcn_daily" {
     }
   })
 }
+
+
+resource "aws_glue_catalog_table" "ghcnd_stations_raw" {
+  name          = "ghcnd_stations_raw"
+  database_name = aws_glue_catalog_database.bronze.name
+  table_type    = "EXTERNAL_TABLE"
+
+  parameters = {
+    EXTERNAL       = "TRUE"
+    classification = "text"
+  }
+
+  storage_descriptor {
+    location      = "s3://aebel-datalake/bronze/ghcnd_stations_raw/"
+    input_format  = "org.apache.hadoop.mapred.TextInputFormat"
+    output_format = "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat"
+
+    ser_de_info {
+      serialization_library = "org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe"
+    }
+
+    columns {
+      name = "line"
+      type = "string"
+    }
+  }
+}
