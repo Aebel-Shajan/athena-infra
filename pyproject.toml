@@ -9,3 +9,8 @@ dynamic = ["optional-dependencies"]
 
 [tool.setuptools.dynamic]
 optional-dependencies.dev = { file = ["requirements-dev.txt"] }
+
+[tool.jupysql.SqlMagic]
+autopolars = true
+displaylimit = 10
+feedback = 0
