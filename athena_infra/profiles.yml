@@ -1,0 +1,13 @@
+athena_infra:
+  outputs:
+    dev:
+      database: awsdatacatalog
+      region_name: eu-west-1
+      # Matches aws_glue_catalog_database.silver location_uri. Tables land at silver/<table>/<uuid>/
+      s3_data_dir: s3://aebel-datalake/silver/
+      s3_data_naming: table_unique
+      s3_staging_dir: s3://aebel-athena-results/results/
+      schema: datalake_silver
+      threads: 1
+      type: athena
+  target: dev

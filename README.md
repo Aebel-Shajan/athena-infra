@@ -9,34 +9,32 @@
     * each athena query should not go above £0.50
 
 
-## Setup 
+## Terraform
 
-0. Install terraform
 ```
 brew tap hashicorp/tap
 brew install hashicorp/tap/terraform
-```
 
-1. Init terraform
-```
 terraform init
-```
-
-2. Validate
-```
 terraform validate
-```
-
-3. Plan
-```
 terraform plan
-```
-
-4. Apply
-```
 terraform apply
 ```
 
+## DBT
+
+* benefits of using dbt: https://aws.amazon.com/blogs/big-data/from-data-lakes-to-insights-dbt-adapter-for-amazon-athena-now-supported-in-dbt-cloud/
+
+```
+pip install dbt-core dbt-athena-community
+dbt init
+dbt run
+dbt test
+
+# To generate and serve docs
+dbt docs generate
+dbt docs serve
+```
 
 ## Process
 * Setup infra

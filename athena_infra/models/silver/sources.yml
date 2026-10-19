@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: bronze
+    database: awsdatacatalog
+    schema: datalake_bronze
+    tables:
+      - name: ghcnd_stations_raw
+        description: ghcnd-stations.txt from s3://noaa-ghcn-pds, one fixed width line per station
