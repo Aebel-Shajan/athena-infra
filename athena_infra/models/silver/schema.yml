@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: ghcnd_stations
+    description: GHCN daily stations, parsed from the fixed width bronze ghcnd_stations_raw table
+    columns:
+      - name: station_id
+        description: Joins to noaa_ghcn_daily.id
+        data_tests:
+          - unique
+          - not_null
+      - name: country_code
+        description: FIPS country code, join to ghcnd-countries.txt
+        data_tests:
+          - not_null
+      - name: latitude
+        data_tests:
+          - not_null
+      - name: longitude
+        data_tests:
+          - not_null
+      - name: elevation_m
+        description: Metres, null when NOAA reports it as missing (-999.9)
+      - name: state
+        description: US/Canada state or province code, null elsewhere
+      - name: is_gsn
+        description: Station is part of the GCOS Surface Network
+      - name: hcn_crn_flag
+        description: HCN (US Historical Climatology Network) or CRN (US Climate Reference Network), else null
+      - name: wmo_id
+        description: World Meteorological Organization station number

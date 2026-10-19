@@ -21,3 +21,9 @@ override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+
+# dbt: compiled SQL/artifacts, installed packages, run logs, anonymous usage id
+target/
+dbt_packages/
+logs/
+.user.yml
