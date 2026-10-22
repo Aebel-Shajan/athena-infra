@@ -36,6 +36,11 @@ dbt docs generate
 dbt docs serve
 ```
 
+## Case studies
+
+* https://aws.amazon.com/blogs/big-data/how-moeve-standardized-dbt-runs-across-data-lakes-with-amazon-athena/
+
+
 ## Process
 * Setup infra
 * Investigate data in notebook with polars
